@@ -24,6 +24,7 @@ struct PostTemplate {
     tags: Vec<String>,
     date: String,
     index: i32,
+    summary: Vec<String>,
 }
 
 #[derive(Template)]
@@ -59,17 +60,23 @@ fn main() {
         let mut name: String = String::from("");
         let mut date: NaiveDate = NaiveDate::from_yo(2015, 73);
         let mut tags: Vec<String> = vec![];
+        let mut summary: Vec<String> = vec![];
         for event in parser {
             if let Event::Html(text) = event {
                 if text.starts_with("<!--") {
                     let lines: Vec<&str> = text.lines().collect();
-                    if lines.len() != 5 {
+                    if lines.len() < 6 {
                         panic!(r#"Invalid metadata in post "{}""#, name);
                     }
                     name = String::from(lines[1]);
                     date = NaiveDate::parse_from_str(lines[2], "%Y-%m-%d")
                         .unwrap_or_else(|_| panic!(r#"Invalid date specifier in post "{}""#, name));
                     tags = lines[3].split(',').map(String::from).collect();
+                    println!("{:?}", lines);
+                    summary = lines[4..lines.len() - 1]
+                        .iter()
+                        .map(|s| String::from(*s))
+                        .collect();
                 }
             }
         }
@@ -80,11 +87,12 @@ fn main() {
         let mut content = String::new();
         pulldown_cmark::html::push_html(&mut content, parser);
         let post = PostTemplate {
-            name: name,
-            content: content,
+            name,
+            content,
             date: format!("{}", date.format("%B %e %Y")),
-            tags: tags,
+            tags,
             index: i,
+            summary,
         };
         let mut html_minifier = HTMLMinifier::new();
         html_minifier
