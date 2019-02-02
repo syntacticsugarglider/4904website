@@ -30,8 +30,6 @@ fn main() {
     }
     fs::create_dir_all("dist/posts").expect("Cannot create dist directory");
 
-    let newest: NaiveDate;
-
     for post in posts {
         let path = post.expect("Failed to parse a post's path").path();
         let markdown = &fs::read_to_string(&path).unwrap_or_else(|_| {
@@ -52,11 +50,9 @@ fn main() {
                         panic!(r#"Invalid metadata in post "{}""#, name);
                     }
                     name = String::from(lines[1]);
-                    date =
-                        NaiveDate::parse_from_str(lines[2], "%Y-%m-%d").unwrap_or_else(|error| {
-                            panic!(r#"Invalid date specifier in post "{}""#, name)
-                        });
-                    let tags: Vec<String> = lines[3].split(',').map(|s| String::from(s)).collect();
+                    date = NaiveDate::parse_from_str(lines[2], "%Y-%m-%d")
+                        .unwrap_or_else(|_| panic!(r#"Invalid date specifier in post "{}""#, name));
+                    tags = lines[3].split(',').map(String::from).collect();
                 }
             }
         }
