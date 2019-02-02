@@ -11,6 +11,12 @@
         <script>
             position = 229;
             locked = false;
+            window.onload = () => {
+                setTimeout(() => {
+                    let bar = document.querySelector(".navigation.bar");
+                    bar.classList.add("animate");
+                }, 300);
+            };
             function showHideNavbar() {
                 let bar = document.querySelector(".navigation.bar");
                 let coords = bar.getBoundingClientRect();
@@ -20,7 +26,6 @@
                     return;
                 }
                 if (document.documentElement.scrollTop + 10 < position) {
-                    console.log(document.documentElement.scrollTop, position);
                     bar.classList.remove("locked");
                     locked = false;
                     return;
@@ -121,21 +126,27 @@
                 flex-flow: row nowrap;
                 justify-content: space-between;
                 z-index: 10000;
+            }
+
+            .navigation.bar.animate {
                 transition: background-color 0.15s ease, padding 0.15s ease, box-shadow 0.15s ease;
             }
 
             .navigation.bar.locked {
                 position: fixed;
-              margin-top: 0;
+                margin-top: 0;
                 padding-left: calc(50% - 300px);
                 box-shadow: 0 5px 10px rgba(0,0,0,0.05);
                 padding-right: calc(50% - 300px);
                 border-bottom: 2px solid f7f7f7;
                 top: 0;
             }
+            
+            .animate .navname {
+                transition: opacity 0.15s ease, width 0.15s ease, transform 0.15s ease;
+            }
 
             .navname {
-                transition: opacity 0.15s ease, width 0.15s ease, transform 0.15s ease;
                 font-size: 1.2rem;
                 cursor: pointer;
                 opacity: 0;
