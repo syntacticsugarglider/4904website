@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{{ name }}</title>
+    <title>Bot Provoking</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#4c83c4" />
     <meta charset="UTF-8" />
@@ -279,15 +279,19 @@
   <body>
     <div class="nav">
       <div class="back-button">Back</div>
-      <div class="ncontainer">{{ name }}</div>
+      <div class="ncontainer">All Posts</div>
       <div class="right">
-        <div class="date">{{ date }}</div>
+        <div class="tags">
+          <div class="tag">test tag</div>
+        </div>
+        <div class="date">idk</div>
       </div>
     </div>
     <div class="content">
+      {% for post in posts %}
       <div class="post">
         <div class="posttitle">
-          <a href="/posts/some_hash">Look Ma, Test Post!</a>
+          <a href="/posts/{{ post.index }}.html">{{ post.name.as_str() }}</a>
         </div>
         <div class="postcontent">
           <p>Here's a bunch of test text and so forth.</p>
@@ -300,10 +304,11 @@
           </p>
         </div>
         <div class="info">
-          <div class="date">2/1/2019</div>
+          <div class="date">{{ post.date.as_str() }}</div>
           <div class="tags">
-            <div class="tag">Meta</div>
-            <div class="tag">Test Post</div>
+            {% for tag in post.tags %}
+            <div class="tag">{{ tag.as_str() }}</div>
+            {% endfor %}
           </div>
           <div class="iright">
             <div class="tag">
@@ -312,6 +317,7 @@
           </div>
         </div>
       </div>
+      {% endfor %}
     </div>
   </body>
 </html>

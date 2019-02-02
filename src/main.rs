@@ -1,6 +1,9 @@
 extern crate askama;
 extern crate chrono;
+extern crate html_minifier;
 extern crate pulldown_cmark;
+
+use html_minifier::HTMLMinifier;
 
 use askama::Template;
 
@@ -15,12 +18,25 @@ use std::path::Path;
 #[derive(Template)]
 #[template(path = "post.html", escape = "none")]
 
-struct PostTemplate<'a> {
-    content: &'a str,
-    name: &'a str,
+struct PostTemplate {
+    content: String,
+    name: String,
     tags: Vec<String>,
-    date: &'a str,
+    date: String,
+    index: i32,
 }
+
+#[derive(Template)]
+#[template(path = "posts.html", escape = "none")]
+
+struct PostsTemplate {
+    posts: Vec<PostTemplate>,
+}
+
+#[derive(Template)]
+#[template(path = "index.html", escape = "none")]
+
+struct IndexTemplate {}
 
 fn main() {
     let posts = fs::read_dir("posts").expect("No posts directory found");
@@ -29,6 +45,7 @@ fn main() {
         fs::remove_dir_all("dist").expect("Cannot clean dist directory");
     }
     fs::create_dir_all("dist/posts").expect("Cannot create dist directory");
+    let mut compiled_posts: Vec<PostTemplate> = vec![];
 
     for post in posts {
         let path = post.expect("Failed to parse a post's path").path();
@@ -63,16 +80,37 @@ fn main() {
         let mut content = String::new();
         pulldown_cmark::html::push_html(&mut content, parser);
         let post = PostTemplate {
-            name: &name,
-            content: &content,
-            date: &format!("{}", date.format("%B %e %Y")),
+            name: name,
+            content: content,
+            date: format!("{}", date.format("%B %e %Y")),
             tags: tags,
+            index: i,
         };
-        fs::write(
-            format!("dist/posts/{}.html", i),
-            post.render().expect("Post rendering failed"),
-        )
-        .expect("Cannot write to dist directory");
+        let mut html_minifier = HTMLMinifier::new();
+        html_minifier
+            .digest(post.render().expect("Post rendering failed"))
+            .expect("Minifying index failed");
+        fs::write(format!("dist/posts/{}.html", i), html_minifier.get_html())
+            .expect("Cannot write to dist directory");
+        compiled_posts.push(post);
         i += 1;
     }
+    let posts = PostsTemplate {
+        posts: compiled_posts,
+    };
+    let mut html_minifier = HTMLMinifier::new();
+    html_minifier
+        .digest(
+            posts
+                .render()
+                .expect("Aggregated posts page rendering failed"),
+        )
+        .expect("Minifying aggregated posts page failed");
+    fs::write("dist/posts.html", html_minifier.get_html()).expect("Cannot write to dist directory");
+    let index = IndexTemplate {};
+    let mut html_minifier = HTMLMinifier::new();
+    html_minifier
+        .digest(index.render().expect("Index rendering failed"))
+        .expect("Minifying index failed");
+    fs::write("dist/index.html", html_minifier.get_html()).expect("Cannot write to dist directory");
 }

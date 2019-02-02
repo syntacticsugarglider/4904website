@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{{ name }}</title>
+    <title>{{ name.as_str() }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#4c83c4" />
     <meta charset="UTF-8" />
@@ -249,19 +249,19 @@
   </head>
   <body>
     <div class="nav">
-      <div class="back-button">Back</div>
-      <div class="ncontainer">{{ name }}</div>
+      <div class="back-button" onclick="window.history.back()">Back</div>
+      <div class="ncontainer">{{ name.as_str() }}</div>
       <div class="right">
         <div class="tags">
           {% for tag in tags %}
-          <div class="tag">{{ tag }}</div>
+          <div class="tag">{{ tag.as_str() }}</div>
           {% endfor %}
         </div>
-        <div class="date">{{ date }}</div>
+        <div class="date">{{ date.as_str() }}</div>
       </div>
     </div>
     <div class="content">
-      {{ content }}
+      {{ content.as_str() }}
     </div>
   </body>
 </html>
