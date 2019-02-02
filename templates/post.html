@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#4c83c4" />
+    <meta charset="UTF-8" />
+    <style>
+      ::selection {
+        background: #99d7f5;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: #222;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+          "Helvetica Neue", sans-serif;
+        padding-bottom: 4em;
+        padding-top: 4em;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        user-select: none;
+        line-height: 1;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: inherit;
+      }
+
+      .content {
+        max-width: 700px;
+        margin: auto;
+        text-align: initial;
+      }
+      .nav {
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 40px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        padding-right: 10px;
+        padding-left: 10px;
+        flex-flow: row nowrap;
+        background: #f7f7f7;
+      }
+      .back-button {
+        position: absolute;
+        height: 20px;
+        background: #4c83c4;
+        color: #f7f7f7;
+        text-transform: uppercase;
+        font-size: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-left: 10px;
+        padding-right: 10px;
+        border-radius: 10px;
+        user-select: none;
+        cursor: pointer;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
+      }
+      .content {
+        min-height: 200vh;
+      }
+      .ncontainer {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: 600;
+        height: 40px;
+        font-size: 14px;
+      }
+      .right {
+        float: right;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        width: 100%;
+        margin-left: -10px;
+        padding-right: 10px;
+        position: absolute;
+      }
+      .date {
+        font-size: 10px;
+        color: #4c83c4;
+      }
+      .tags {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-right: 10px;
+      }
+      .tag {
+        background: #4c83c4;
+        font-size: 8px;
+        color: #f7f7f7;
+        display: inline-flex;
+        justify-content: center;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
+        transition: all 0.15s ease;
+        align-items: center;
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-left: 10px;
+        cursor: pointer;
+        height: 20px;
+        border-radius: 10px;
+      }
+      .tag:hover {
+        box-shadow: 0 7px 20px rgba(0, 0, 0, 0.16);
+        transform: translateY(-1px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="nav">
+      <div class="back-button">Back</div>
+      <div class="ncontainer">{{ name }}</div>
+      <div class="right">
+        <div class="tags">
+          {% for tag in tags %}
+          <div class="tag">{{ tag }}</div>
+          {% endfor %}
+        </div>
+        <div class="date">{{ date }}</div>
+      </div>
+    </div>
+    <div class="content">
+      {{ content }}
+    </div>
+  </body>
+</html>

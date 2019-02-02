@@ -1,0 +1,10 @@
+[package]
+name = "botgen"
+version = "0.1.0"
+authors = ["Jacob Swart <zenerboson@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+askama = "0.7.2"
+pulldown-cmark = "0.2.0"
+chrono = "0.4.6"
