@@ -44,10 +44,12 @@
         margin: auto;
         text-align: initial;
       }
+
       strong {
         font-weight: 600;
         color: #444;
       }
+
       .nav {
         width: 100%;
         position: fixed;
@@ -64,13 +66,14 @@
         flex-flow: row nowrap;
         background: white;
       }
+
       .back-button {
         position: absolute;
         height: 20px;
         background: #4c83c4;
         color: #f7f7f7;
         text-transform: uppercase;
-        z-index: 10000;
+        z-index: 100000;
         font-size: 8px;
         display: flex;
         justify-content: center;
@@ -83,6 +86,7 @@
         cursor: pointer;
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
       }
+
       .ncontainer {
         width: 100%;
         display: flex;
@@ -92,6 +96,7 @@
         height: 40px;
         font-size: 14px;
       }
+
       .right {
         float: right;
         display: flex;
@@ -102,20 +107,53 @@
         padding-right: 10px;
         position: absolute;
       }
+
       p {
         font-size: 15px;
         line-height: 26px;
       }
+
       .date {
         font-size: 10px;
         color: #4c83c4;
         user-select: none;
       }
+
       .tags {
         display: flex;
         justify-content: flex-end;
         align-items: center;
         margin-right: 10px;
+      }
+
+      .tag {
+        background: #4c83c4;
+        font-size: 8px;
+        color: #f7f7f7;
+        display: inline-flex;
+        justify-content: center;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
+        transition: all 0.15s ease;
+        align-items: center;
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-left: 10px;
+        cursor: pointer;
+        height: 20px;
+        border-radius: 10px;
+      }
+
+      .back-button:hover {
+        box-shadow: 0 7px 20px rgba(0, 0, 0, 0.16);
+        transform: translateY(-1px);
+      }
+
+      .date {
+        display: inline-block;
+        color: #4c83c4;
+      }
+      .tags {
+        display: inline-block;
       }
       .tag {
         background: #4c83c4;
@@ -133,14 +171,11 @@
         height: 20px;
         border-radius: 10px;
       }
-      .back-button:hover {
-        box-shadow: 0 7px 20px rgba(0, 0, 0, 0.16);
-        transform: translateY(-1px);
-      }
       .tag:hover {
         box-shadow: 0 7px 20px rgba(0, 0, 0, 0.16);
         transform: translateY(-1px);
       }
+
       h1 {
         font-size: 36px;
         font-weight: 600;
@@ -151,6 +186,7 @@
         margin-inline-start: 0px;
         margin-inline-end: 0px;
       }
+
       h2 {
         font-size: 0.9rem;
         user-select: none;
@@ -163,105 +199,119 @@
         margin-inline-start: 0px;
         margin-inline-end: 0px;
       }
-      .content a {
+      .post {
+        height: 200px;
+        padding: 20px;
+        margin: 30px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border-radius: 10px;
         position: relative;
-        display: inline-block;
-        color: #333;
-        transition: 0.15s all ease;
+        background: #f7f7f7;
       }
-      .content a:hover {
-        color: black;
+      .info {
+        font-size: 10px;
+        left: 20px;
+        position: absolute;
+        bottom: 10px;
+        width: 100%;
+        padding-right: 40px;
+        user-select: none;
+        text-transform: uppercase;
       }
-      .content a::after {
+      .info::before {
         content: "";
         display: block;
+        background: white;
         position: absolute;
-        margin-top: -3px;
+        left: 0;
+        bottom: 29.5px;
+        margin-left: -20px;
         height: 1px;
         width: 100%;
-        background: #4c83c4;
+      }
+      .postcontent {
+        flex-grow: 1;
+        padding-top: 4px;
+      }
+      .postcontent p {
+        font-size: 0.75em;
+        color: #888;
+        text-overflow: ellipsis;
+        line-height: 19.5px;
+      }
+      .posttitle {
+        font-weight: bold;
+        font-size: 1.5em;
+        color: #444;
+      }
+      .posttitle a {
+        position: relative;
+        display: inline-block;
+        text-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
         transition: all 0.15s ease;
       }
-      code {
-        background: #222;
-        color: white;
-        line-height: 20px;
-        padding-left: 7.5px;
-        padding-right: 7.5px;
-        font-size: 0.7em;
-        border-radius: 5px;
-        display: inline-flex;
-        justify-content: flex-start;
-        align-items: center;
-        margin-left: 2.5px;
-        margin-right: 2.5px;
+      .posttitle a:hover {
+        transform: translateY(-1px);
+        text-shadow: 0 7px 20px rgba(0, 0, 0, 0.16);
       }
-      blockquote {
-        padding-left: 20px;
-        padding-right: 30px;
-        margin-top: 20px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        border-left: 3px solid #4c83c4;
-        margin-bottom: 20px;
-        line-height: 25px;
-        font-style: italic;
-        color: #444;
-        margin-left: 30px;
-        max-width: 570px;
-      }
-      blockquote * {
-        font-size: 0.8em;
-        margin: 0;
-      }
-      ul li {
-        list-style: none;
-        font-size: 0.8em;
-      }
-      ul li::before {
+      .posttitle a::after {
         content: "";
-        height: 1px;
-        width: 5px;
-        background: #222;
-        margin-right: 5px;
+        display: block;
+        width: 100%;
+        margin-top: 2px;
+        transition: all 0.15s ease;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
         position: absolute;
-        left: -10px;
-        margin-top: 13px;
-        display: inline-block;
+        height: 1px;
+        background: #4c83c4;
       }
-      ol li {
-        font-size: 0.8em;
+      .posttitle a:hover::after {
+        transform: translateY(1px);
+        box-shadow: 0 7px 20px rgba(0, 0, 0, 0.16);
       }
-      ul {
-        padding: 0;
-        position: relative;
-        font-size: 15px;
-        line-height: 26px;
-      }
-      ol {
-        padding: 0;
-        font-size: 15px;
-        line-height: 26px;
-        padding: 0;
-        position: relative;
+      .iright {
+        float: right;
       }
     </style>
   </head>
+
   <body>
     <div class="nav">
       <div class="back-button">Back</div>
       <div class="ncontainer">{{ name }}</div>
       <div class="right">
-        <div class="tags">
-          {% for tag in tags %}
-          <div class="tag">{{ tag }}</div>
-          {% endfor %}
-        </div>
         <div class="date">{{ date }}</div>
       </div>
     </div>
     <div class="content">
-      {{ content }}
+      <div class="post">
+        <div class="posttitle">
+          <a href="/posts/some_hash">Look Ma, Test Post!</a>
+        </div>
+        <div class="postcontent">
+          <p>Here's a bunch of test text and so forth.</p>
+          <p>
+            This will show a preview of the first part of the most recent post.
+          </p>
+          <p>
+            Clickable tags below allow one to preview other posts with the same
+            context. Controls also permit...
+          </p>
+        </div>
+        <div class="info">
+          <div class="date">2/1/2019</div>
+          <div class="tags">
+            <div class="tag">Meta</div>
+            <div class="tag">Test Post</div>
+          </div>
+          <div class="iright">
+            <div class="tag">
+              All Posts
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
