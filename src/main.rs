@@ -65,7 +65,7 @@ fn main() {
         let post = PostTemplate {
             name: &name,
             content: &content,
-            date: &format!("{}", date.format("%Y")),
+            date: &format!("{}", date.format("%B %e %Y")),
             tags: tags,
         };
         fs::write(
