@@ -72,7 +72,6 @@ fn main() {
                     date = NaiveDate::parse_from_str(lines[2], "%Y-%m-%d")
                         .unwrap_or_else(|_| panic!(r#"Invalid date specifier in post "{}""#, name));
                     tags = lines[3].split(',').map(String::from).collect();
-                    println!("{:?}", lines);
                     summary = lines[4..lines.len() - 1]
                         .iter()
                         .map(|s| String::from(*s))
