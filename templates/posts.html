@@ -146,6 +146,17 @@
         border-radius: 10px;
       }
 
+      .tag.active::after {
+        content: "";
+        display: block;
+        width: 8px;
+        height: 8px;
+        border-radius: 4px;
+        margin-left: 5px;
+        margin-right: -3px;
+        background: #f7f7f7;
+      }
+
       .back-button:hover {
         box-shadow: 0 7px 20px rgba(0, 0, 0, 0.16);
         transform: translateY(-1px);
@@ -666,6 +677,9 @@
             registerListener(node);
           } else {
             tags.splice(tags.indexOf(e.innerHTML), 1);
+            Array.from(document.querySelectorAll(".tag"))
+              .filter(e => e.innerHTML === e.innerHTML)
+              .forEach(e => e.classList.remove("active"));
             e.classList.remove("active");
             document
               .querySelectorAll(`[data-tag="${e.innerHTML}"]`)
