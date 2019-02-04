@@ -298,6 +298,9 @@
       .post.hidden {
         display: none;
       }
+      .post.thidden {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -659,23 +662,45 @@
               .querySelector(".selected.tags")
               .appendChild(e.cloneNode(true));
             node.setAttribute("data-tag", e.innerHTML);
+            Array.from(document.querySelectorAll(".tag"))
+              .filter(k => k.innerHTML === e.innerHTML)
+              .forEach(k => k.classList.add("active"));
             registerListener(node);
           } else {
             tags.splice(tags.indexOf(e.innerHTML), 1);
             Array.from(document.querySelectorAll(".tag"))
-              .filter(e => e.innerHTML === e.innerHTML)
-              .forEach(e => e.classList.remove("active"));
-            e.classList.remove("active");
+              .filter(k => k.innerHTML === e.innerHTML)
+              .forEach(k => k.classList.remove("active"));
             document
               .querySelectorAll(`[data-tag="${e.innerHTML}"]`)
-              .forEach(e => e.remove());
+              .forEach(k => k.remove());
           }
+          let cb =
+            tags.length === 0
+              ? e => {
+                  e.classList.remove("thidden");
+                }
+              : e => {
+                  e.classList.remove("thidden");
+                  tags.forEach(tag => {
+                    if (
+                      e.querySelectorAll(`[data-post-tag="${tag}"]`).length ===
+                      0
+                    ) {
+                      e.classList.add("thidden");
+                    }
+                  });
+                };
+          document.querySelectorAll(".post").forEach(cb);
         });
       };
       window.onload = () => {
         for (elem of document.querySelectorAll(".post")) {
           posts.add(elem.id);
         }
+        document.querySelectorAll(".post .tag").forEach(e => {
+          e.setAttribute("data-post-tag", e.innerHTML);
+        });
         registerListeners();
       };
     </script>
