@@ -133,11 +133,13 @@
         color: #f7f7f7;
         display: inline-flex;
         justify-content: center;
+        user-select: none;
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
         transition: all 0.15s ease;
         align-items: center;
         padding-left: 10px;
         padding-right: 10px;
+        text-transform: uppercase;
         margin-left: 10px;
         cursor: pointer;
         height: 20px;
@@ -623,6 +625,7 @@
     </script>
     <script>
       let posts = FuzzySet();
+      let tags = [];
       document.documentElement.addEventListener("keydown", () => {
         let searchElem = document.querySelector(".search");
         searchElem.focus();
@@ -648,10 +651,33 @@
           elem.classList.remove("hidden");
         });
       });
+      let registerListeners = () => {
+        document.querySelectorAll(".tag").forEach(e => registerListener(e));
+      };
+      let registerListener = e => {
+        e.addEventListener("click", () => {
+          if (!tags.includes(e.innerHTML)) {
+            tags.push(e.innerHTML);
+            e.classList.add("active");
+            let node = document
+              .querySelector(".selected.tags")
+              .appendChild(e.cloneNode(true));
+            node.setAttribute("data-tag", e.innerHTML);
+            registerListener(node);
+          } else {
+            tags.splice(tags.indexOf(e.innerHTML), 1);
+            e.classList.remove("active");
+            document
+              .querySelectorAll(`[data-tag="${e.innerHTML}"]`)
+              .forEach(e => e.remove());
+          }
+        });
+      };
       window.onload = () => {
         for (elem of document.querySelectorAll(".post")) {
           posts.add(elem.id);
         }
+        registerListeners();
       };
     </script>
     <div class="nav">
@@ -668,10 +694,7 @@
         />
       </div>
       <div class="right">
-        <div class="tags">
-          <div class="tag">test tag</div>
-        </div>
-        <div class="date">idk</div>
+        <div class="selected tags"></div>
       </div>
     </div>
     <div class="content">
