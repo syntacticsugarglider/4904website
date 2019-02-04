@@ -15,7 +15,7 @@ use std::fs;
 
 use std::path::Path;
 
-#[derive(Template)]
+#[derive(Template, Clone)]
 #[template(path = "post.html", escape = "none")]
 
 struct PostTemplate {
@@ -37,7 +37,9 @@ struct PostsTemplate {
 #[derive(Template)]
 #[template(path = "index.html", escape = "none")]
 
-struct IndexTemplate {}
+struct IndexTemplate {
+    featured_post: Option<PostTemplate>,
+}
 
 fn main() {
     let posts = fs::read_dir("posts").expect("No posts directory found");
@@ -47,6 +49,7 @@ fn main() {
     }
     fs::create_dir_all("dist/posts").expect("Cannot create dist directory");
     let mut compiled_posts: Vec<PostTemplate> = vec![];
+    let mut featured: Option<PostTemplate> = None;
 
     for post in posts {
         let path = post.expect("Failed to parse a post's path").path();
@@ -61,6 +64,7 @@ fn main() {
         let mut date: NaiveDate = NaiveDate::from_yo(2015, 73);
         let mut tags: Vec<String> = vec![];
         let mut summary: Vec<String> = vec![];
+        let mut f = false;
         for event in parser {
             if let Event::Html(text) = event {
                 if text.starts_with("<!--") {
@@ -72,6 +76,10 @@ fn main() {
                     date = NaiveDate::parse_from_str(lines[2], "%Y-%m-%d")
                         .unwrap_or_else(|_| panic!(r#"Invalid date specifier in post "{}""#, name));
                     tags = lines[3].split(',').map(String::from).collect();
+                    if tags[0] == "featured" {
+                        f = true;
+                        tags = tags[1..].to_vec();
+                    }
                     summary = lines[4..lines.len() - 1]
                         .iter()
                         .map(|s| String::from(*s))
@@ -99,6 +107,9 @@ fn main() {
             .expect("Minifying index failed");
         fs::write(format!("dist/posts/{}.html", i), html_minifier.get_html())
             .expect("Cannot write to dist directory");
+        if f {
+            featured = Some(post.clone());
+        }
         compiled_posts.push(post);
         i += 1;
     }
@@ -114,7 +125,9 @@ fn main() {
         )
         .expect("Minifying aggregated posts page failed");
     fs::write("dist/posts.html", html_minifier.get_html()).expect("Cannot write to dist directory");
-    let index = IndexTemplate {};
+    let index = IndexTemplate {
+        featured_post: featured,
+    };
     let mut html_minifier = HTMLMinifier::new();
     html_minifier
         .digest(index.render().expect("Index rendering failed"))

@@ -90,7 +90,9 @@
                 margin-top: 0;
                 margin-bottom: 0;
             }
-    
+            ::-webkit-scrollbar {
+                display: none;
+            }
             .subtitle {
                 font-size: 0.9rem;
                 user-select: none;
@@ -486,30 +488,35 @@
                     <a href="#calendar">Calendar</a>
                 </div>
             </div>
+            {% if featured_post.as_ref().is_some() %}
             <div class="section">
                 <div class="content">
                     <div class="post">
-                        <div class="posttitle"><a href="/posts/some_hash">Look Ma, Test Post!</a></div>
+                        <div class="posttitle">
+                            <a href="/posts/{{ featured_post.as_ref().unwrap().index }}.html">{{ featured_post.as_ref().unwrap().name.as_str() }}</a>
+                        </div>
                         <div class="postcontent">
-                            <p>Here's a bunch of test text and so forth.</p>
-                            <p>This will show a preview of the first part of the most recent post.</p>
-                            <p>Clickable tags below allow one to preview other posts with the same context. Controls also permit...</p>
+                            {% for paragraph in featured_post.as_ref().unwrap().summary %}
+                            <p>{{ paragraph }}</p>
+                            {% endfor %}
                         </div>
                         <div class="info">
-                            <div class="date">2/1/2019</div>
+                            <div class="date">{{ featured_post.as_ref().unwrap().date.as_str() }}</div>
                             <div class="tags">
-                                <div class="tag">Meta</div>
-                                <div class="tag">Test Post</div>
+                                {% for tag in featured_post.as_ref().unwrap().tags %}
+                                <div class="tag">{{ tag.as_str() }}</div>
+                                {% endfor %}
                             </div>
                             <div class="right">
                                 <div class="tag">
-                                    All Posts
+                                    <a href="/posts.html">All Posts</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            {% endif %}
             <div class="section">
                 <div class="content">
                     <h1 class="title" id="about">About</h1>
