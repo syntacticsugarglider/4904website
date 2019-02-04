@@ -113,6 +113,7 @@ fn main() {
         compiled_posts.push(post);
         i += 1;
     }
+    compiled_posts.sort_by(|a, b| a.date.cmp(&b.date));
     let posts = PostsTemplate {
         posts: compiled_posts,
     };
