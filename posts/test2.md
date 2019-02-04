@@ -8,3 +8,5 @@ Another test post.
 # Second Test Page
 
 Just trying to ensure things are working properly.
+
+![alt text](image.png)

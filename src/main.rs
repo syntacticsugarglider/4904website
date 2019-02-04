@@ -7,7 +7,7 @@ use html_minifier::HTMLMinifier;
 
 use askama::Template;
 
-use pulldown_cmark::{Event, Parser};
+use pulldown_cmark::{Event, Parser, Tag};
 
 use chrono::prelude::*;
 
@@ -87,10 +87,18 @@ fn main() {
                 }
             }
         }
-        let parser = Parser::new(markdown).filter(|event| match event {
-            Event::Html(text) => !text.starts_with("<!--"),
-            _ => true,
-        });
+        let parser = Parser::new(markdown)
+            .filter(|event| match event {
+                Event::Html(text) => !text.starts_with("<!--"),
+                _ => true,
+            })
+            .map(|event| match &event {
+                Event::Start(Tag::Image(url, _)) => {
+                    println!("{:?}", url);
+                    event
+                }
+                _ => event,
+            });
         let mut content = String::new();
         pulldown_cmark::html::push_html(&mut content, parser);
         let post = PostTemplate {
