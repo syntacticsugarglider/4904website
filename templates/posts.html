@@ -626,7 +626,7 @@
       document.documentElement.addEventListener("keydown", () => {
         let searchElem = document.querySelector(".search");
         searchElem.focus();
-        if (searchElem.value != "") {
+        if (searchElem.value.length > 2) {
           let matches = posts.get(searchElem.value, [], 0.1).map(e => e[1]);
           for (elem of document.querySelectorAll(".post")) {
             console.log(matches);
@@ -635,6 +635,10 @@
             } else {
               elem.classList.remove("hidden");
             }
+          }
+        } else {
+          for (elem of document.querySelectorAll(".hidden")) {
+            elem.classList.remove("hidden");
           }
         }
       });
