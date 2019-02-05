@@ -552,6 +552,10 @@
         <script>
             overlay = false;
             window.addEventListener("load",() => {
+                if (window.location.hash === "#calendar") {
+                    document.body.classList.add("oactive");
+                    overlay = true;
+                }
                 document.querySelector("[href=\"#calendar\"]").addEventListener("click", () => {
                     document.body.classList.add("oactive");
                     overlay = true;
