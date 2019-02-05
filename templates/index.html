@@ -391,6 +391,7 @@
                 padding-left: 10px;
                 padding-right: 10px;
                 margin-left: 10px;
+                text-transform: uppercase;
                 cursor: pointer;
                 height: 20px;
                 border-radius: 10px;
@@ -463,7 +464,93 @@
             .right {
                 float: right;
             }
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                opacity: 0;
+                height: 100vh;
+                z-index: -1;
+                transition: all 0.15s ease;
+            }
+            body.oactive .overlay {
+                background: rgba(255,255,255,0.6);
+                z-index: 1000000000;
+                opacity: 1;
+            }
+            .page {
+                transition: filter 0.15s ease;
+            }
+            body.oactive .page {
+                filter: blur(5px);
+            }
+            body.oactive {
+                overflow: hidden;
+            }
+            .calendar {
+                border-radius: 10px;
+                width: calc(100% - 50px);
+                height: calc(100% - 50px);
+                box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+                max-width: 1000px;
+                max-height: 600px;
+                background: #f7f7f7;
+            }
+            .calendar .bar {
+                border-bottom: 1px solid white;
+                padding-bottom: 20px;
+                padding: 10px;
+                height: 42px;
+                position: relative;
+            }
+            .calendar .tag {
+                position: absolute;
+                margin-left: 5px;
+                margin-top: 1px;
+            }
+            .cname {
+                position: absolute;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                user-select: none;
+                margin-bottom: -2px;
+                top: 1px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-weight: 600;
+            }
+            .ccontent {
+                height: 100%;
+            }
         </style>
+        <script>
+            window.addEventListener("load",() => {
+                document.querySelector("[href=\"#calendar\"]").addEventListener("click", () => {
+                    document.body.classList.add("oactive");
+                });
+                document.querySelector(".calendar .tag").addEventListener("click", () => {
+                    document.body.classList.remove("oactive");
+                });
+            });
+        </script>
+        <div class="overlay">
+            <div class="calendar">
+                <div class="bar">
+                    <div class="cname">Calendar</div>
+                    <div class="tag">Close</div>
+                </div>
+                <div class="ccontent">
+                    <iframe data-v-45d1a051="" src="https://calendar.google.com/calendar/embed?showCalendars=0&amp;showTz=0&amp;height=600&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src=nuevaschool.org_mjs52qjv4sg4el7d0lb48ong4g%40group.calendar.google.com&amp;color=%234c83c4&amp;ctz=America%2FLos_Angeles"
+                        width="100%" frameborder="0" scrolling="no" class="main_calendar" style="height: 100%;"></iframe>
+                </div>
+            </div>
+        </div>
         <div class="page">
             <div class="flex center hero">
                 <div class="container">
