@@ -9,4 +9,4 @@ Another test post.
 
 Just trying to ensure things are working properly.
 
-![alt text](image.png)
+![alt text](pog.jpg)

@@ -1,6 +1,8 @@
 extern crate askama;
+extern crate base64;
 extern crate chrono;
 extern crate html_minifier;
+extern crate mime_guess;
 extern crate pulldown_cmark;
 
 use html_minifier::HTMLMinifier;
@@ -14,6 +16,10 @@ use chrono::prelude::*;
 use std::fs;
 
 use std::path::Path;
+
+use mime_guess::get_mime_type;
+
+use std::borrow::Cow;
 
 #[derive(Template, Clone)]
 #[template(path = "post.html", escape = "none")]
@@ -92,10 +98,16 @@ fn main() {
                 Event::Html(text) => !text.starts_with("<!--"),
                 _ => true,
             })
-            .map(|event| match &event {
-                Event::Start(Tag::Image(url, _)) => {
-                    println!("{:?}", url);
-                    event
+            .map(|event| match event {
+                Event::Start(Tag::Image(url, alt)) => {
+                    let ext = url.split('.').collect::<Vec<&str>>()[1];
+                    let image =
+                        &fs::read(&Path::new(&format!("images/{}", url))).unwrap_or_else(|_| {
+                            panic!("Could not read image {}", url);
+                        });
+                    let data = base64::encode(image);
+                    let uri = format!("data:{};base64,{}", get_mime_type(ext), data);
+                    Event::Start(Tag::Image(Cow::from(uri), alt))
                 }
                 _ => event,
             });
@@ -113,8 +125,11 @@ fn main() {
         html_minifier
             .digest(post.render().expect("Post rendering failed"))
             .expect("Minifying index failed");
-        fs::write(format!("dist/posts/{}.html", i), html_minifier.get_html())
-            .expect("Cannot write to dist directory");
+        fs::write(
+            &Path::new(&format!("dist/posts/{}.html", i)),
+            html_minifier.get_html(),
+        )
+        .expect("Cannot write to dist directory");
         if f {
             featured = Some(post.clone());
         }
@@ -133,7 +148,8 @@ fn main() {
                 .expect("Aggregated posts page rendering failed"),
         )
         .expect("Minifying aggregated posts page failed");
-    fs::write("dist/posts.html", html_minifier.get_html()).expect("Cannot write to dist directory");
+    fs::write(Path::new("dist/posts.html"), html_minifier.get_html())
+        .expect("Cannot write to dist directory");
     let index = IndexTemplate {
         featured_post: featured,
     };
@@ -141,5 +157,6 @@ fn main() {
     html_minifier
         .digest(index.render().expect("Index rendering failed"))
         .expect("Minifying index failed");
-    fs::write("dist/index.html", html_minifier.get_html()).expect("Cannot write to dist directory");
+    fs::write(Path::new("dist/index.html"), html_minifier.get_html())
+        .expect("Cannot write to dist directory");
 }
