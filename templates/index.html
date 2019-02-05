@@ -561,6 +561,8 @@
                     overlay = true;
                 });
                 document.querySelector(".calendar .tag").addEventListener("click", () => {
+                    history.pushState("", document.title, window.location.pathname
+                        + window.location.search);
                     document.body.classList.remove("oactive");
                     overlay = false;
                 });
