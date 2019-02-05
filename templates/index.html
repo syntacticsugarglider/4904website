@@ -32,6 +32,18 @@
                 }
             }
             window.addEventListener('scroll', showHideNavbar);
+            document.body.addEventListener('mousewheel', (e) => {
+                if (overlay) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+            document.body.addEventListener('touchmove', (e) => {
+                if (overlay) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
         </script>
         <style>
             ::selection {
@@ -490,9 +502,6 @@
             body.oactive .page {
                 filter: blur(5px);
             }
-            body.oactive {
-                overflow: hidden;
-            }
             .calendar {
                 border-radius: 10px;
                 width: calc(100% - 50px);
@@ -532,12 +541,15 @@
             }
         </style>
         <script>
+            overlay = false;
             window.addEventListener("load",() => {
                 document.querySelector("[href=\"#calendar\"]").addEventListener("click", () => {
                     document.body.classList.add("oactive");
+                    overlay = true;
                 });
                 document.querySelector(".calendar .tag").addEventListener("click", () => {
                     document.body.classList.remove("oactive");
+                    overlay = false;
                 });
             });
         </script>
