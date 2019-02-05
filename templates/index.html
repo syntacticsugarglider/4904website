@@ -152,7 +152,6 @@
                 padding-left: calc(50% - 300px);
                 box-shadow: 0 5px 10px rgba(0,0,0,0.05);
                 padding-right: calc(50% - 300px);
-                border-bottom: 2px solid f7f7f7;
                 top: 0;
             }
             
@@ -499,8 +498,14 @@
             .page {
                 transition: filter 0.15s ease;
             }
-            body.oactive .page {
-                filter: blur(5px);
+            body.oactive .section {
+                filter: blur(3px);
+            }
+            body.oactive .navigation.bar {
+                filter: blur(3px);
+            }
+            body.oactive .hero {
+                filter: blur(3px);
             }
             .calendar {
                 border-radius: 10px;
