@@ -480,20 +480,18 @@
                 top: 0;
                 left: 0;
                 width: 100vw;
-                transform: scale(0.75);
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 opacity: 0;
                 height: 100vh;
                 z-index: -1;
-                transition: all 0.15s ease;
+                transition: opacity 0.15s ease;
             }
             body.oactive .overlay {
                 background: rgba(255,255,255,0.6);
                 z-index: 1000000000;
                 opacity: 1;
-                transform: scale(1);
             }
             .section, .navigation.bar, .hero {
                 transition: filter 0.15s ease;
@@ -508,8 +506,13 @@
             body.oactive .hero {
                 filter: blur(3px);
             }
+            body.oactive .calendar {
+                transform: scale(1);
+            }
             .calendar {
+                transform: scale(0.75);
                 border-radius: 10px;
+                transition: all 0.15s ease;
                 width: calc(100% - 50px);
                 height: calc(100% - 50px);
                 box-shadow: 0 5px 10px rgba(0,0,0,0.05);
