@@ -2,6 +2,8 @@ extern crate askama;
 extern crate base64;
 extern crate chrono;
 extern crate html_minifier;
+extern crate reqwest;
+extern crate ical;
 extern crate mime_guess;
 extern crate pulldown_cmark;
 
@@ -20,6 +22,8 @@ use std::path::Path;
 use mime_guess::get_mime_type;
 
 use std::borrow::Cow;
+
+use ical::IcalParser;
 
 #[derive(Template, Clone)]
 #[template(path = "post.html", escape = "none")]
@@ -47,7 +51,45 @@ struct IndexTemplate {
     featured_post: Option<PostTemplate>,
 }
 
+struct CalendarEvent<'a> {
+    start_date: NaiveDate,
+    end_date: NaiveDate,
+    name: &'a str,
+}
+
 fn main() {
+    let mut resp = reqwest::get("http://calendar.google.com/calendar/ical/nuevaschool.org_mjs52qjv4sg4el7d0lb48ong4g%40group.calendar.google.com/public/basic.ics").expect("Cannot fetch calendar");
+    let text = resp.text().expect("Cannot parse returned ics");
+    let buffer = text.as_bytes();
+    let mut parser = IcalParser::new(buffer);
+    let calendar = parser.next().expect("Cannot read calendar").expect("Cannot read calendar");
+    let compiled_events: Vec<CalendarEvent> = vec![];
+    for event in calendar.events {
+        let mut start_date: Option<NaiveDate> = None;
+        let mut end_date: Option<NaiveDate> = None;
+        let mut name: Option<&str> = None;
+        for property in event.properties {
+            if property.name == "SUMMARY" {
+                match property.value {
+                    Some(value) => {
+                        name = Some(&value)
+                    },
+                    None => continue
+                }
+            }
+            if property.name == "DTSTART" {
+                match property.value {
+                    Some(value) => {
+                        start_date = match NaiveDate::parse_from_str(&value, "") {
+                            Err(_) => None,
+                            Ok(date) => Some(date)
+                        }
+                    },
+                    None => continue
+                }
+            }
+        }
+    }
     let posts = fs::read_dir("posts").expect("No posts directory found");
     let mut i = 0;
     if Path::new("dist").exists() {
