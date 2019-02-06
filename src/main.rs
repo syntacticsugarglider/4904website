@@ -87,6 +87,9 @@ fn main() {
                     },
                     None => continue
                 }
+                if start_date.is_none() {
+                    continue;
+                }
             }
         }
     }
