@@ -70,7 +70,7 @@ fn main() {
         let mut name: Option<&str> = None;
         for property in event.properties {
             if property.name == "SUMMARY" {
-                match property.value {
+                match &property.value {
                     Some(value) => {
                         name = Some(&value)
                     },
@@ -78,7 +78,7 @@ fn main() {
                 }
             }
             if property.name == "DTSTART" {
-                match property.value {
+                match &property.value {
                     Some(value) => {
                         start_date = match NaiveDate::parse_from_str(&value, "") {
                             Err(_) => None,
