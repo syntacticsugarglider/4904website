@@ -628,11 +628,13 @@
             window.addEventListener("load",() => {
                 document.querySelector(".today").scrollIntoView();
                 if (window.location.hash === "#calendar") {
+                    document.querySelector(".today").scrollIntoView();
                     document.body.classList.add("oactive");
                     overlay = true;
                 }
                 document.querySelector("[href=\"#calendar\"]").addEventListener("click", () => {
                     document.body.classList.add("oactive");
+                    document.querySelector(".today").scrollIntoView();
                     overlay = true;
                 });
                 document.querySelector(".calendar .tag").addEventListener("click", () => {
