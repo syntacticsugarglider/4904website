@@ -651,13 +651,18 @@
                     document.body.classList.remove("oactive");
                     overlay = false;
                 });
-                document.querySelector(".overlay").addEventListener("click", (e) => {
+                document.querySelector(".overlay").addEventListener("click", e => {
                     if (e.target.querySelectorAll(".calendar").length !== 0) {
                         history.pushState("", document.title, window.location.pathname
                             + window.location.search);
                         document.body.classList.remove("oactive");
                         overlay = false;
                     }
+                });
+                document.querySelectorAll(".tags .tag").forEach(e => {
+                    e.addEventListener("click", () => {
+                        window.location.href = `/posts.html?${btoa(e.innerHTML)}`;
+                    })
                 });
             });
         </script>

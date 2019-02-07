@@ -696,10 +696,19 @@
           e.setAttribute("data-post-tag", e.innerHTML);
         });
         registerListeners();
+        if (window.location.search !== "") {
+          let tag = atob(window.location.search.slice(1));
+          history.pushState("", document.title, window.location.pathname);
+          tag = document.querySelectorAll(`[data-post-tag="${tag}"]`);
+          if (tag.length > 0) {
+            tag = tag[0];
+            tag.dispatchEvent(new Event("click"));
+          }
+        }
       };
     </script>
     <div class="nav">
-      <div class="back-button" onclick="window.history.back()">Back</div>
+      <div class="back-button" onclick="window.location.href='/';">Home</div>
       <div class="ncontainer">
         <input
           type="text"
