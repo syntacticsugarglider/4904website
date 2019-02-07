@@ -1,11 +1,13 @@
+#![feature(inner_deref)]
+
 extern crate askama;
 extern crate base64;
 extern crate chrono;
 extern crate html_minifier;
-extern crate reqwest;
 extern crate ical;
 extern crate mime_guess;
 extern crate pulldown_cmark;
+extern crate reqwest;
 
 use html_minifier::HTMLMinifier;
 
@@ -25,6 +27,8 @@ use std::borrow::Cow;
 
 use ical::IcalParser;
 
+use std::collections::HashMap;
+
 #[derive(Template, Clone)]
 #[template(path = "post.html", escape = "none")]
 
@@ -38,23 +42,26 @@ struct PostTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "posts.html", escape = "none")]
+#[template(path = "posts.html")]
 
 struct PostsTemplate {
     posts: Vec<PostTemplate>,
 }
 
 #[derive(Template)]
-#[template(path = "index.html", escape = "none")]
+#[template(path = "index.html")]
 
 struct IndexTemplate {
     featured_post: Option<PostTemplate>,
+    events: HashMap<NaiveDate, Vec<CalendarEvent>>,
 }
 
-struct CalendarEvent<'a> {
+#[derive(Clone)]
+
+struct CalendarEvent {
     start_date: NaiveDate,
-    end_date: NaiveDate,
-    name: &'a str,
+    end_date: Option<NaiveDate>,
+    name: String,
 }
 
 fn main() {
@@ -62,36 +69,66 @@ fn main() {
     let text = resp.text().expect("Cannot parse returned ics");
     let buffer = text.as_bytes();
     let mut parser = IcalParser::new(buffer);
-    let calendar = parser.next().expect("Cannot read calendar").expect("Cannot read calendar");
-    let compiled_events: Vec<CalendarEvent> = vec![];
+    let calendar = parser
+        .next()
+        .expect("Cannot read calendar")
+        .expect("Cannot read calendar");
+    let mut events: HashMap<NaiveDate, Vec<CalendarEvent>> = HashMap::new();
     for event in calendar.events {
         let mut start_date: Option<NaiveDate> = None;
         let mut end_date: Option<NaiveDate> = None;
-        let mut name: Option<&str> = None;
+        let mut name: Option<String> = None;
         for property in event.properties {
             if property.name == "SUMMARY" {
-                match &property.value {
-                    Some(value) => {
-                        name = Some(&value)
-                    },
-                    None => continue
-                }
+                name = Some(String::from(
+                    property.value.deref().expect("No value for name in event"),
+                ));
             }
             if property.name == "DTSTART" {
-                match &property.value {
-                    Some(value) => {
-                        start_date = match NaiveDate::parse_from_str(&value, "") {
-                            Err(_) => None,
-                            Ok(date) => Some(date)
-                        }
-                    },
-                    None => continue
-                }
-                if start_date.is_none() {
-                    continue;
-                }
+                start_date = Some(
+                    NaiveDate::parse_from_str(
+                        &property
+                            .value
+                            .deref()
+                            .expect("No value for start date in event")[0..8],
+                        "%Y%m%d",
+                    )
+                    .expect("Cannot parse start date in event"),
+                );
+            }
+            if property.name == "DTEND" {
+                end_date = Some(
+                    NaiveDate::parse_from_str(
+                        &property
+                            .value
+                            .deref()
+                            .expect("No value for end date in event")[0..8],
+                        "%Y%m%d",
+                    )
+                    .expect("Cannot parse end date in event"),
+                );
             }
         }
+        let start_date = start_date.expect("No start date in event");
+        events.insert(
+            start_date,
+            match events.get(&start_date) {
+                None => vec![CalendarEvent {
+                    name: name.expect("No name in event").clone(),
+                    start_date: start_date,
+                    end_date: end_date,
+                }],
+                Some(events) => {
+                    let mut events: Vec<CalendarEvent> = events.to_vec();
+                    events.extend(vec![CalendarEvent {
+                        name: name.expect("No name in event").clone(),
+                        start_date: start_date,
+                        end_date: end_date,
+                    }]);
+                    events
+                }
+            },
+        );
     }
     let posts = fs::read_dir("posts").expect("No posts directory found");
     let mut i = 0;
@@ -197,6 +234,7 @@ fn main() {
         .expect("Cannot write to dist directory");
     let index = IndexTemplate {
         featured_post: featured,
+        events,
     };
     let mut html_minifier = HTMLMinifier::new();
     html_minifier

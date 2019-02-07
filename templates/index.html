@@ -34,14 +34,18 @@
             window.addEventListener('scroll', showHideNavbar);
             document.body.addEventListener('mousewheel', (e) => {
                 if (overlay) {
-                    e.preventDefault();
-                    e.stopPropagation();
+                    if (e.target.querySelectorAll(".calendar").length !== 0) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
                 }
             });
             document.body.addEventListener('touchmove', (e) => {
                 if (overlay) {
-                    e.preventDefault();
-                    e.stopPropagation();
+                    if (e.target.querySelectorAll(".calendar").length !== 0) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
                 }
             });
         </script>
@@ -246,12 +250,8 @@
             .title {
                 font-size: 36px;
                 font-weight: 600;
-                margin-top: 0;
-                margin-bottom: 30px;
-                margin-block-start: 0.83em;
-                margin-block-end: 0.83em;
-                margin-inline-start: 0px;
-                margin-inline-end: 0px;
+                margin-top: 0.83em;
+                margin-bottom: 0.83em;
             }
     
             p {
@@ -400,6 +400,7 @@
                 transition: all 0.15s ease;
                 align-items: center;
                 padding-left: 10px;
+                user-select: none;
                 padding-right: 10px;
                 margin-left: 10px;
                 text-transform: uppercase;
@@ -517,6 +518,8 @@
                 height: calc(100% - 50px);
                 box-shadow: 0 5px 10px rgba(0,0,0,0.05);
                 max-width: 1000px;
+                display: flex;
+                flex-flow: column nowrap;
                 max-height: 600px;
                 background: #f7f7f7;
             }
@@ -526,6 +529,7 @@
                 padding: 10px;
                 height: 42px;
                 position: relative;
+                flex-shrink: 0;
             }
             .calendar .tag {
                 position: absolute;
@@ -546,7 +550,37 @@
                 font-weight: 600;
             }
             .ccontent {
-                height: 100%;
+                flex-grow: 1;
+                display: flex;
+                margin-left: -15px;
+                padding: 10px;
+                overflow-y: scroll;
+                flex-flow: row wrap;
+            }
+            .day {
+                flex-grow: 1;
+                max-width: 200px;
+                min-width: 100px;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+                margin-left: 15px;
+                margin-bottom: 15px;
+                user-select: none;
+                font-size: 0.6em;
+                background: white;
+                padding: 15px;
+                border-radius: 5px;
+            }
+            .event {
+                padding: 5px;
+                color: #f7f7f7;
+                border-radius: 11.5px;
+                line-height: 1.4;
+                padding-left: 10px;
+                padding-right: 10px;
+                background: #4c83c4;
+            }
+            .event:not(:first-child) {
+                margin-top: 10px;
             }
         </style>
         <script>
@@ -566,6 +600,12 @@
                     document.body.classList.remove("oactive");
                     overlay = false;
                 });
+                document.querySelector(".overlay").addEventListener("click", (e) => {
+                    if (e.target.querySelectorAll(".calendar").length !== 0) {
+                        document.body.classList.remove("oactive");
+                        overlay = false;
+                    }
+                });
             });
         </script>
         <div class="overlay">
@@ -575,8 +615,13 @@
                     <div class="tag">Close</div>
                 </div>
                 <div class="ccontent">
-                    <iframe data-v-45d1a051="" src="https://calendar.google.com/calendar/embed?showCalendars=0&amp;showTz=0&amp;height=600&amp;wkst=1&amp;bgcolor=%23ffffff&amp;src=nuevaschool.org_mjs52qjv4sg4el7d0lb48ong4g%40group.calendar.google.com&amp;color=%234c83c4&amp;ctz=America%2FLos_Angeles"
-                        width="100%" frameborder="0" scrolling="no" class="main_calendar" style="height: calc(100% - 40px);"></iframe>
+                    {% for day in events %}
+                    <div class="day">
+                    {% for event in day.1 %}
+                    <div class="event">{{ event.name.as_str() }}</div>
+                    {% endfor %}
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
