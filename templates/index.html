@@ -553,7 +553,7 @@
                 position: relative;
                 flex-shrink: 0;
             }
-            .calendar .tag {
+            .calendar .tag:not(.today) {
                 position: absolute;
                 margin-left: 5px;
                 margin-top: 1px;
@@ -610,10 +610,23 @@
             .event:nth-child(2) {
                 margin-top: 5px;
             }
+            .today {
+                font-size: 0.6em;
+                text-transform: uppercase;
+                color: #ccc;
+                font-weight: 600;
+                display: flex;
+                margin-bottom: 10px;
+                user-select: none;
+                margin-left: 10px;
+                justify-content: center;
+                align-items: center;
+            }
         </style>
         <script>
             overlay = false;
             window.addEventListener("load",() => {
+                document.querySelector(".today").scrollIntoView();
                 if (window.location.hash === "#calendar") {
                     document.body.classList.add("oactive");
                     overlay = true;
@@ -646,12 +659,16 @@
                 </div>
                 <div class="ccontent">
                     {% for day in events %}
+                    {% if day.1.iter().count() != 0 %}
                     <div class="day">
                     <div class="cdate">{{ day.0.format("%B %e %Y") }}</div>
                     {% for event in day.1 %}
                     <div class="event">{{ event.name.as_str() }}</div>
                     {% endfor %}
                     </div>
+                    {% else %}
+                    <div class="today">Today</div>
+                    {% endif %}
                     {% endfor %}
                 </div>
             </div>

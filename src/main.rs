@@ -233,6 +233,10 @@ fn main() {
     fs::write(Path::new("dist/posts.html"), html_minifier.get_html())
         .expect("Cannot write to dist directory");
     let mut events: Vec<(&NaiveDate, &Vec<CalendarEvent>)> = events.iter().collect();
+    let no_events = vec![];
+    let now = Utc::now();
+    let today = NaiveDate::from_yo(now.year(), now.ordinal());
+    events.push((&today, &no_events));
     events.sort_by(|a, b| a.0.cmp(&b.0));
     let index = IndexTemplate {
         featured_post: featured,
