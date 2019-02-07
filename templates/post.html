@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#4c83c4" />
     <meta charset="UTF-8" />
+    <script>
+      window.onload = () => {
+        document.querySelectorAll(".fade").forEach(e => {
+          e.classList.remove("fade");
+        });
+        document.querySelectorAll(`[href]: not([href=""])`).forEach(el => {
+          el.addEventListener("click", e => {
+            let ref = el.getAttribute("href");
+            if (ref[0] !== "#") {
+              e.preventDefault();
+              e.stopPropagation();
+              document.body.classList.add("fade");
+              setTimeout(() => {
+                window.location.href = ref;
+              }, 150);
+            }
+          });
+        });
+      };
+    </script>
     <style>
       ::selection {
         background: #99d7f5;
@@ -14,7 +34,13 @@
         box-sizing: border-box;
       }
 
+      body.fade {
+        opacity: 0;
+      }
+
       body {
+        transition: opacity 0.15s ease;
+        opacity: 1;
         margin: 0;
         color: #222;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
@@ -64,8 +90,11 @@
         flex-flow: row nowrap;
         background: white;
       }
-      .back-button {
+      .nav a {
         position: absolute;
+        z-index: 10000000;
+      }
+      .back-button {
         height: 20px;
         background: #4c83c4;
         color: #f7f7f7;
@@ -247,11 +276,13 @@
       }
     </style>
   </head>
-  <body>
+  <body class="fade">
     <div class="nav">
-      <div class="back-button" onclick="window.location.href='/posts.html'">
-        All Posts
-      </div>
+      <a href="/posts.html"
+        ><div class="back-button">
+          All Posts
+        </div></a
+      >
       <div class="ncontainer">{{ name.as_str() }}</div>
       <div class="right">
         <div class="tags">
