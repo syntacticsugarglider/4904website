@@ -51,9 +51,9 @@ struct PostsTemplate {
 #[derive(Template)]
 #[template(path = "index.html")]
 
-struct IndexTemplate {
+struct IndexTemplate<'a> {
     featured_post: Option<PostTemplate>,
-    events: HashMap<NaiveDate, Vec<CalendarEvent>>,
+    events: Vec<(&'a NaiveDate, &'a Vec<CalendarEvent>)>,
 }
 
 #[derive(Clone)]
@@ -232,6 +232,8 @@ fn main() {
         .expect("Minifying aggregated posts page failed");
     fs::write(Path::new("dist/posts.html"), html_minifier.get_html())
         .expect("Cannot write to dist directory");
+    let mut events: Vec<(&NaiveDate, &Vec<CalendarEvent>)> = events.iter().collect();
+    events.sort_by(|a, b| a.0.cmp(&b.0));
     let index = IndexTemplate {
         featured_post: featured,
         events,

@@ -33,6 +33,17 @@
             }
             window.addEventListener('scroll', showHideNavbar);
             document.body.addEventListener('mousewheel', (e) => {
+                let ccontent = document.querySelector(".ccontent");
+                if (overlay && ccontent.scrollHeight - ccontent.scrollTop - ccontent.clientHeight === 0 && e.deltaY > 0) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+                if (overlay && ccontent.scrollTop === 0 && e.deltaY < 0) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
                 if (overlay) {
                     if (e.target.querySelectorAll(".calendar").length !== 0) {
                         e.preventDefault();
@@ -41,6 +52,17 @@
                 }
             });
             document.body.addEventListener('touchmove', (e) => {
+                let ccontent = document.querySelector(".ccontent");
+                if (overlay && ccontent.scrollHeight - ccontent.scrollTop - ccontent.clientHeight === 0 && e.deltaY > 0) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+                if (overlay && ccontent.scrollTop === 0 && e.deltaY < 0) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
                 if (overlay) {
                     if (e.target.querySelectorAll(".calendar").length !== 0) {
                         e.preventDefault();
@@ -524,8 +546,8 @@
                 background: #f7f7f7;
             }
             .calendar .bar {
-                border-bottom: 1px solid white;
                 padding-bottom: 20px;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.03);
                 padding: 10px;
                 height: 42px;
                 position: relative;
@@ -552,7 +574,8 @@
             .ccontent {
                 flex-grow: 1;
                 display: flex;
-                margin-left: -15px;
+                margin-bottom: -10px;
+                margin-left: -10px;
                 padding: 10px;
                 overflow-y: scroll;
                 flex-flow: row wrap;
@@ -562,25 +585,30 @@
                 max-width: 200px;
                 min-width: 100px;
                 box-shadow: 0 5px 10px rgba(0,0,0,0.05);
-                margin-left: 15px;
-                margin-bottom: 15px;
+                margin-left: 10px;
+                margin-bottom: 10px;
                 user-select: none;
                 font-size: 0.6em;
                 background: white;
-                padding: 15px;
+                padding: 10px;
                 border-radius: 5px;
             }
             .event {
-                padding: 5px;
-                color: #f7f7f7;
-                border-radius: 11.5px;
                 line-height: 1.4;
-                padding-left: 10px;
-                padding-right: 10px;
-                background: #4c83c4;
+                font-size: 1.2em;
+                color: #333;
             }
-            .event:not(:first-child) {
-                margin-top: 10px;
+            .cdate {
+                color: #4c83c4;
+                text-transform: uppercase;
+            }
+            .event:not(:nth-child(2)) {
+                padding-top: 5px;
+                margin-top: 5px;
+                border-top: 1px solid #eee;
+            }
+            .event:nth-child(2) {
+                margin-top: 5px;
             }
         </style>
         <script>
@@ -602,6 +630,8 @@
                 });
                 document.querySelector(".overlay").addEventListener("click", (e) => {
                     if (e.target.querySelectorAll(".calendar").length !== 0) {
+                        history.pushState("", document.title, window.location.pathname
+                            + window.location.search);
                         document.body.classList.remove("oactive");
                         overlay = false;
                     }
@@ -617,6 +647,7 @@
                 <div class="ccontent">
                     {% for day in events %}
                     <div class="day">
+                    <div class="cdate">{{ day.0.format("%B %e %Y") }}</div>
                     {% for event in day.1 %}
                     <div class="event">{{ event.name.as_str() }}</div>
                     {% endfor %}
