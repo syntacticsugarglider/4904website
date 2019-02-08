@@ -612,6 +612,9 @@
                 font-size: 1.2em;
                 color: #333;
             }
+            .cedate {
+                font-size: 0.8em;
+            }
             .cdate {
                 color: #4c83c4;
                 text-transform: uppercase;
@@ -701,9 +704,14 @@
                     {% for day in events %}
                     {% if day.1.iter().count() != 0 %}
                     <div class="day">
-                    <div class="cdate">{{ day.0.format("%B %e %Y") }}</div>
+                    <div class="cdate">{{ day.0.format("%a %B %e %Y") }}</div>
                     {% for event in day.1 %}
                     <div class="event">{{ event.name.as_str() }}</div>
+                    {% if event.end_date.is_some() && event.end_date.unwrap() > day.0 + one_day %}
+                    <div class="cedate">Until {{ event.end_date.unwrap().format("%B %e") }}</div>
+                    {% else if event.end_date.is_some() %}
+                    <div class="cedate">From {{ event.start_date.format("%l:%M") }} to {{ event.end_date.unwrap().format("%l:%M") }}</div>
+                    {% endif %}
                     {% endfor %}
                     </div>
                     {% else %}

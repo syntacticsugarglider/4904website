@@ -17,6 +17,8 @@ use pulldown_cmark::{Event, Parser, Tag};
 
 use chrono::prelude::*;
 
+use chrono::Duration;
+
 use std::fs;
 
 use std::path::Path;
@@ -53,14 +55,15 @@ struct PostsTemplate {
 
 struct IndexTemplate<'a> {
     featured_post: Option<PostTemplate>,
-    events: Vec<(&'a NaiveDate, &'a Vec<CalendarEvent>)>,
+    events: Vec<(NaiveDateTime, &'a Vec<CalendarEvent>)>,
+    one_day: Duration,
 }
 
 #[derive(Clone)]
 
 struct CalendarEvent {
-    start_date: NaiveDate,
-    end_date: Option<NaiveDate>,
+    start_date: NaiveDateTime,
+    end_date: Option<NaiveDateTime>,
     name: String,
 }
 
@@ -73,10 +76,10 @@ fn main() {
         .next()
         .expect("Cannot read calendar")
         .expect("Cannot read calendar");
-    let mut events: HashMap<NaiveDate, Vec<CalendarEvent>> = HashMap::new();
+    let mut events: HashMap<NaiveDateTime, Vec<CalendarEvent>> = HashMap::new();
     for event in calendar.events {
-        let mut start_date: Option<NaiveDate> = None;
-        let mut end_date: Option<NaiveDate> = None;
+        let mut start_date: Option<NaiveDateTime> = None;
+        let mut end_date: Option<NaiveDateTime> = None;
         let mut name: Option<String> = None;
         for property in event.properties {
             if property.name == "SUMMARY" {
@@ -85,28 +88,46 @@ fn main() {
                 ));
             }
             if property.name == "DTSTART" {
-                start_date = Some(
-                    NaiveDate::parse_from_str(
-                        &property
-                            .value
-                            .deref()
-                            .expect("No value for start date in event")[0..8],
-                        "%Y%m%d",
-                    )
-                    .expect("Cannot parse start date in event"),
-                );
+                println!("{}", property);
+                let value = &property
+                    .value
+                    .deref()
+                    .expect("No value for start date in event");
+                if value.len() > 9 {
+                    start_date = Some(
+                        NaiveDateTime::parse_from_str(&value[0..13], "%Y%m%dT%H%M")
+                            .expect("Cannot parse start date in event"),
+                    );
+                } else {
+                    start_date = Some(
+                        NaiveDateTime::parse_from_str(
+                            &(value[0..8].to_owned() + "T0000"),
+                            "%Y%m%dT%H%M",
+                        )
+                        .expect("Cannot parse start date in event"),
+                    );
+                }
             }
             if property.name == "DTEND" {
-                end_date = Some(
-                    NaiveDate::parse_from_str(
-                        &property
-                            .value
-                            .deref()
-                            .expect("No value for end date in event")[0..8],
-                        "%Y%m%d",
-                    )
-                    .expect("Cannot parse end date in event"),
-                );
+                println!("{}", property);
+                let value = &property
+                    .value
+                    .deref()
+                    .expect("No value for end date in event");
+                if value.len() > 9 {
+                    end_date = Some(
+                        NaiveDateTime::parse_from_str(&value[0..13], "%Y%m%dT%H%M")
+                            .expect("Cannot parse end date in event"),
+                    );
+                } else {
+                    end_date = Some(
+                        NaiveDateTime::parse_from_str(
+                            &(value[0..8].to_owned() + "T0000"),
+                            "%Y%m%dT%H%M",
+                        )
+                        .expect("Cannot parse end date in event"),
+                    );
+                }
             }
         }
         let start_date = start_date.expect("No start date in event");
@@ -149,7 +170,8 @@ fn main() {
         });
         let parser = Parser::new(markdown);
         let mut name: String = String::from("");
-        let mut date: NaiveDate = NaiveDate::from_yo(2015, 73);
+        let mut date: NaiveDateTime =
+            NaiveDateTime::parse_from_str("2001-07-08T00:34:60.026490+09:30", "%+").unwrap();
         let mut tags: Vec<String> = vec![];
         let mut summary: Vec<String> = vec![];
         let mut f = false;
@@ -161,7 +183,7 @@ fn main() {
                         panic!(r#"Invalid metadata in post "{}""#, name);
                     }
                     name = String::from(lines[1]);
-                    date = NaiveDate::parse_from_str(lines[2], "%Y-%m-%d")
+                    date = NaiveDateTime::parse_from_str(lines[2], "%Y-%m-%d %H:%M")
                         .unwrap_or_else(|_| panic!(r#"Invalid date specifier in post "{}""#, name));
                     tags = lines[3].split(',').map(String::from).collect();
                     if tags[0] == "featured" {
@@ -232,15 +254,16 @@ fn main() {
         .expect("Minifying aggregated posts page failed");
     fs::write(Path::new("dist/posts.html"), html_minifier.get_html())
         .expect("Cannot write to dist directory");
-    let mut events: Vec<(&NaiveDate, &Vec<CalendarEvent>)> = events.iter().collect();
+    let mut events: Vec<(NaiveDateTime, &Vec<CalendarEvent>)> =
+        events.iter().map(|a| (*a.0, a.1)).collect();
     let no_events = vec![];
-    let now = Utc::now();
-    let today = NaiveDate::from_yo(now.year(), now.ordinal());
-    events.push((&today, &no_events));
+    let now: NaiveDateTime = Utc::now().naive_utc();
+    events.push((now, &no_events));
     events.sort_by(|a, b| a.0.cmp(&b.0));
     let index = IndexTemplate {
         featured_post: featured,
         events,
+        one_day: Duration::days(1),
     };
     let mut html_minifier = HTMLMinifier::new();
     html_minifier

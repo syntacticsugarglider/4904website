@@ -1,6 +1,6 @@
 <!--
 Test Post 2
-2019-1-04
+2019-1-04 12:30
 Meta,Test Post
 Another test post.
 -->

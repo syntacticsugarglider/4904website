@@ -1,6 +1,6 @@
 <!--
 Markdown: Syntax
-2019-2-01
+2019-2-01 12:30
 featured,Meta,Test Post,Test Tag
 This is a test of the technique used to parse summaries.
 It works across multiple lines.
