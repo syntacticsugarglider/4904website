@@ -1,0 +1,19 @@
+<!--
+Weeks Six-Seven
+2019-2-20 12:00
+2019 Season
+Week six (and the first half of week seven) marked the end of both 2019's build season, and build season as a practice in FIRST Robotics.
+-->
+
+# Week Six-Seven (End)
+
+Week six (and the first half of week seven) marked the end of both 2019's build season, and build season as a practice in FIRST Robotics. Our team used this time to its fullest advantage—the Programming subteam finished most of their work on vision and auto-alignment, the fabrication team successfully finished the fabrication of the competition robot (while being aided by Design, who began part redesign for the offseason), and electronics wired and tested the competition robot.
+
+The programming team made significant strides in the many meetings held over the last week and a half, finishing most off-robot tests for retroreflective tape vision, leveraging their increased manpower to work through some of the more complicated math, and compiling many of the season-long projects for testing on the robot.
+
+Fabrication effectively used the last stretch of build season by not only finishing the competition robot but also fabricating our practice robot. Along with design, they performed mechanical tests on the initial competition robot, eventually deciding that a partial redesign of our cargo and hatch manipulator was necessary.
+
+The Electronics subteam stepped out to the rapid work necessitated by the deadline of build season, effectively wiring the entire robot in under 2 hours (impressive, considering their original estimate of 2 days). They continued work on their LED projects and, despite a few minor setbacks, were able to effectively debug voltage conversion problems on their custom, robot-mounted sensor boards.
+
+While we weren't able to complete all the testing that we wanted to, our preparations for the San Francisco Regional (our first FIRST competition) our clear and achievable. Good luck to all the teams we will be competing with, and keep an eye on The Blue Alliance on March 16th-17th, when we will have our first competition!
+
