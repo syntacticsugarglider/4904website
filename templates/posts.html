@@ -215,7 +215,7 @@
         color: #4c83c4;
       }
       .post {
-        height: 200px;
+        min-height: 200px;
         padding: 20px;
         margin: 30px;
         margin-top: 10px;
@@ -249,6 +249,7 @@
       .postcontent {
         flex-grow: 1;
         padding-top: 4px;
+        padding-block-end: 1em;
       }
       .postcontent p {
         font-size: 0.75em;
@@ -768,7 +769,7 @@
       {% for post in posts %}
       <div class="post" id="{{ post.name.as_str() }}">
         <div class="posttitle">
-          <a href="/posts/{{ post.index }}.html">{{ post.name.as_str() }}</a>
+          <a href="/posts/{{ post.file_name }}.html">{{ post.name.as_str() }}</a>
         </div>
         <div class="postcontent">
           {% for paragraph in post.summary %}

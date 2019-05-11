@@ -40,6 +40,7 @@ struct PostTemplate {
     tags: Vec<String>,
     date: String,
     index: i32,
+    file_name: String,
     summary: Vec<String>,
 }
 
@@ -88,7 +89,7 @@ fn main() {
                 ));
             }
             if property.name == "DTSTART" {
-                println!("{}", property);
+                // println!("{}", property);
                 let value = &property
                     .value
                     .deref()
@@ -109,7 +110,7 @@ fn main() {
                 }
             }
             if property.name == "DTEND" {
-                println!("{}", property);
+                // println!("{}", property);
                 let value = &property
                     .value
                     .deref()
@@ -158,11 +159,15 @@ fn main() {
     }
     fs::create_dir_all("dist/posts").expect("Cannot create dist directory");
     let mut compiled_posts: Vec<PostTemplate> = vec![];
-    let mut compiled_dates: Vec<String> = vec![];
     let mut featured: Option<PostTemplate> = None;
 
     for post in posts {
         let path = post.expect("Failed to parse a post's path").path();
+        let path_string = path.to_str().expect("Empty file name.").to_string();
+        let path_vec = path_string.chars().collect::<Vec<_>>();
+        let full_name = path_vec[6..].iter().cloned().collect::<String>();
+        let mut split = full_name.split(".");
+        let file_name = split.nth(0).expect("Cannot split file name.").to_string();
         let markdown = &fs::read_to_string(&path).unwrap_or_else(|_| {
             panic!(
                 "Something went wrong while reading the post in file {}",
@@ -186,9 +191,6 @@ fn main() {
                     name = String::from(lines[1]);
                     date = NaiveDateTime::parse_from_str(lines[2], "%Y-%m-%d %H:%M")
                         .unwrap_or_else(|_| panic!(r#"Invalid date specifier in post "{}""#, name));
-                    // compiled_dates.push(format!("{}", date.format("%B %e %Y")));
-                    // // println!("{}", NaiveDateTime::parse_from_str(&*format!("{}", date.format("%b-%d-%Y")), "%b-%d-%Y").unwrap());
-                    // println!("{}", format!("{}", date.format("%B %e %Y")));
                     tags = lines[3].split(',').map(String::from).collect();
                     if tags[0] == "featured" {
                         f = true;
@@ -221,6 +223,7 @@ fn main() {
             });
         let mut content = String::new();
         pulldown_cmark::html::push_html(&mut content, parser);
+        let copy = file_name.clone(); 
         let post = PostTemplate {
             name,
             content,
@@ -228,6 +231,7 @@ fn main() {
             // date,
             tags,
             index: i,
+            file_name,
             summary,
         };
         let mut html_minifier = HTMLMinifier::new();
@@ -235,7 +239,7 @@ fn main() {
             .digest(post.render().expect("Post rendering failed"))
             .expect("Minifying index failed");
         fs::write(
-            &Path::new(&format!("dist/posts/{}.html", i)),
+            &Path::new(&format!("dist/posts/{}.html", copy)),
             html_minifier.get_html(),
         )
         .expect("Cannot write to dist directory");
@@ -247,9 +251,6 @@ fn main() {
     }
     // compiled_posts.sort_by(|a, b| a.date.cmp(&b.date));
     compiled_posts.sort_by(|a, b| (NaiveDate::parse_from_str(&*b.date, "%B %e %Y").unwrap_or_else(|_| panic!("Invalid date."))).cmp(&(NaiveDate::parse_from_str(&*a.date, "%B %e %Y").unwrap_or_else(|_| panic!("Invalid date.")))));
-    for item in compiled_dates {
-        println!("{}", item);
-    }
     let posts = PostsTemplate {
         posts: compiled_posts,
     };
