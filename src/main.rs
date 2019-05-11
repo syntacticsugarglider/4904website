@@ -39,7 +39,6 @@ struct PostTemplate {
     name: String,
     tags: Vec<String>,
     date: String,
-    index: i32,
     summary: Vec<String>,
 }
 
@@ -218,11 +217,10 @@ fn main() {
         let mut content = String::new();
         pulldown_cmark::html::push_html(&mut content, parser);
         let post = PostTemplate {
-            name,
+            name: name.clone(),
             content,
             date: format!("{}", date.format("%B %e %Y")),
             tags,
-            index: i,
             summary,
         };
         let mut html_minifier = HTMLMinifier::new();
@@ -230,7 +228,7 @@ fn main() {
             .digest(post.render().expect("Post rendering failed"))
             .expect("Minifying index failed");
         fs::write(
-            &Path::new(&format!("dist/posts/{}.html", i)),
+            &Path::new(&format!("dist/posts/{}.html", name)),
             html_minifier.get_html(),
         )
         .expect("Cannot write to dist directory");

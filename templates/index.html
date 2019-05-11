@@ -750,7 +750,7 @@
                 <div class="content">
                     <div class="post">
                         <div class="posttitle">
-                            <a href="/posts/{{ featured_post.as_ref().unwrap().index }}.html">{{ featured_post.as_ref().unwrap().name.as_str() }}</a>
+                            <a href="/posts/{{ featured_post.as_ref().unwrap().name }}.html">{{ featured_post.as_ref().unwrap().name.as_str() }}</a>
                         </div>
                         <div class="postcontent">
                             {% for paragraph in featured_post.as_ref().unwrap().summary %}
