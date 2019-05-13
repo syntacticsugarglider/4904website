@@ -4,10 +4,8 @@ extern crate askama;
 extern crate base64;
 extern crate chrono;
 extern crate html_minifier;
-extern crate ical;
 extern crate mime_guess;
 extern crate pulldown_cmark;
-extern crate reqwest;
 
 use html_minifier::HTMLMinifier;
 
@@ -17,8 +15,6 @@ use pulldown_cmark::{Event, Parser, Tag};
 
 use chrono::prelude::*;
 
-use chrono::Duration;
-
 use std::fs;
 
 use std::path::Path;
@@ -26,10 +22,6 @@ use std::path::Path;
 use mime_guess::get_mime_type;
 
 use std::borrow::Cow;
-
-use ical::IcalParser;
-
-use std::collections::HashMap;
 
 #[derive(Template, Clone)]
 #[template(path = "post.html", escape = "none")]
@@ -49,113 +41,13 @@ struct PostsTemplate {
     posts: Vec<PostTemplate>,
 }
 
-#[derive(Template)]
-#[template(path = "index.html")]
-
-struct IndexTemplate<'a> {
-    featured_post: Option<PostTemplate>,
-    events: Vec<(NaiveDateTime, &'a Vec<CalendarEvent>)>,
-    one_day: Duration,
-}
-
-#[derive(Clone)]
-
-struct CalendarEvent {
-    start_date: NaiveDateTime,
-    end_date: Option<NaiveDateTime>,
-    name: String,
-}
-
 fn main() {
-    let mut resp = reqwest::get("http://calendar.google.com/calendar/ical/nuevaschool.org_mjs52qjv4sg4el7d0lb48ong4g%40group.calendar.google.com/public/basic.ics").expect("Cannot fetch calendar");
-    let text = resp.text().expect("Cannot parse returned ics");
-    let buffer = text.as_bytes();
-    let mut parser = IcalParser::new(buffer);
-    let calendar = parser
-        .next()
-        .expect("Cannot read calendar")
-        .expect("Cannot read calendar");
-    let mut events: HashMap<NaiveDateTime, Vec<CalendarEvent>> = HashMap::new();
-    for event in calendar.events {
-        let mut start_date: Option<NaiveDateTime> = None;
-        let mut end_date: Option<NaiveDateTime> = None;
-        let mut name: Option<String> = None;
-        for property in event.properties {
-            if property.name == "SUMMARY" {
-                name = Some(String::from(
-                    property.value.deref().expect("No value for name in event"),
-                ));
-            }
-            if property.name == "DTSTART" {
-                println!("{}", property);
-                let value = &property
-                    .value
-                    .deref()
-                    .expect("No value for start date in event");
-                if value.len() > 9 {
-                    start_date = Some(
-                        NaiveDateTime::parse_from_str(&value[0..13], "%Y%m%dT%H%M")
-                            .expect("Cannot parse start date in event"),
-                    );
-                } else {
-                    start_date = Some(
-                        NaiveDateTime::parse_from_str(
-                            &(value[0..8].to_owned() + "T0000"),
-                            "%Y%m%dT%H%M",
-                        )
-                        .expect("Cannot parse start date in event"),
-                    );
-                }
-            }
-            if property.name == "DTEND" {
-                println!("{}", property);
-                let value = &property
-                    .value
-                    .deref()
-                    .expect("No value for end date in event");
-                if value.len() > 9 {
-                    end_date = Some(
-                        NaiveDateTime::parse_from_str(&value[0..13], "%Y%m%dT%H%M")
-                            .expect("Cannot parse end date in event"),
-                    );
-                } else {
-                    end_date = Some(
-                        NaiveDateTime::parse_from_str(
-                            &(value[0..8].to_owned() + "T0000"),
-                            "%Y%m%dT%H%M",
-                        )
-                        .expect("Cannot parse end date in event"),
-                    );
-                }
-            }
-        }
-        let start_date = start_date.expect("No start date in event");
-        events.insert(
-            start_date,
-            match events.get(&start_date) {
-                None => vec![CalendarEvent {
-                    name: name.expect("No name in event").clone(),
-                    start_date: start_date,
-                    end_date: end_date,
-                }],
-                Some(events) => {
-                    let mut events: Vec<CalendarEvent> = events.to_vec();
-                    events.extend(vec![CalendarEvent {
-                        name: name.expect("No name in event").clone(),
-                        start_date: start_date,
-                        end_date: end_date,
-                    }]);
-                    events
-                }
-            },
-        );
-    }
     let posts = fs::read_dir("posts").expect("No posts directory found");
     if Path::new("dist").exists() {
         fs::remove_dir_all("dist").expect("Cannot clean dist directory");
     }
     fs::create_dir_all("dist/posts").expect("Cannot create dist directory");
-    let mut compiled_posts: Vec<PostTemplate> = vec![];
+    let mut compiled_posts: Vec<PostTemplate> = Vec::new();
     let mut featured: Option<PostTemplate> = None;
 
     let mut article_names = Vec::new();
@@ -254,22 +146,5 @@ fn main() {
         )
         .expect("Minifying aggregated posts page failed");
     fs::write(Path::new("dist/posts.html"), html_minifier.get_html())
-        .expect("Cannot write to dist directory");
-    let mut events: Vec<(NaiveDateTime, &Vec<CalendarEvent>)> =
-        events.iter().map(|a| (*a.0, a.1)).collect();
-    let no_events = vec![];
-    let now: NaiveDateTime = Utc::now().naive_utc();
-    events.push((now, &no_events));
-    events.sort_by(|a, b| a.0.cmp(&b.0));
-    let index = IndexTemplate {
-        featured_post: featured,
-        events,
-        one_day: Duration::days(1),
-    };
-    let mut html_minifier = HTMLMinifier::new();
-    html_minifier
-        .digest(index.render().expect("Index rendering failed"))
-        .expect("Minifying index failed");
-    fs::write(Path::new("dist/index.html"), html_minifier.get_html())
         .expect("Cannot write to dist directory");
 }
