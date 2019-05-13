@@ -1,11 +1,14 @@
 #![feature(inner_deref)]
 
+extern crate argparse;
 extern crate askama;
 extern crate base64;
 extern crate chrono;
 extern crate html_minifier;
 extern crate mime_guess;
 extern crate pulldown_cmark;
+
+use argparse::{ArgumentParser, Store};
 
 use html_minifier::HTMLMinifier;
 
@@ -42,11 +45,26 @@ struct PostsTemplate {
 }
 
 fn main() {
-    let posts = fs::read_dir("posts").expect("No posts directory found");
-    if Path::new("dist").exists() {
-        fs::remove_dir_all("dist").expect("Cannot clean dist directory");
+    let mut posts_path = "posts".to_string();
+    let mut images_path = "images".to_string();
+    let mut dist_path = "dist".to_string();
+    {
+        let mut ap = ArgumentParser::new();
+        ap.set_description("Generate 4904 articles website from markdown files.");
+        ap.refer(&mut posts_path).add_option(&["--md-path"], Store, "Path to markdown files for posts");
+        ap.refer(&mut images_path).add_option(&["--imgs-path"], Store, "Path to images used by markdown posts");
+        ap.refer(&mut dist_path).add_option(&["--dist-path"], Store, "Path to output generated html");
+        ap.parse_args_or_exit();
     }
-    fs::create_dir_all("dist/posts").expect("Cannot create dist directory");
+
+    let posts = fs::read_dir(posts_path.clone())
+        .expect(format!("No posts directory found at {}", posts_path).as_str());
+    if Path::new(dist_path.as_str()).exists() {
+        fs::remove_dir_all(dist_path.clone())
+            .expect(format!("Cannot clean dist directory at {}", dist_path).as_str());
+    }
+    fs::create_dir_all(format!("{}/posts", dist_path)).expect("Cannot create dist directory");
+
     let mut compiled_posts: Vec<PostTemplate> = Vec::new();
     let mut featured: Option<PostTemplate> = None;
 
@@ -101,8 +119,8 @@ fn main() {
                 Event::Start(Tag::Image(url, alt)) => {
                     let ext = url.split('.').collect::<Vec<&str>>()[1];
                     let image =
-                        &fs::read(&Path::new(&format!("images/{}", url))).unwrap_or_else(|_| {
-                            panic!("Could not read image {}", url);
+                        &fs::read(&Path::new(&format!("{}/{}", images_path, url))).unwrap_or_else(|_| {
+                            panic!("Could not read image {} in dir {}", url, images_path);
                         });
                     let data = base64::encode(image);
                     let uri = format!("data:{};base64,{}", get_mime_type(ext), data);
@@ -124,7 +142,7 @@ fn main() {
             .digest(post.render().expect("Post rendering failed"))
             .expect("Minifying index failed");
         fs::write(
-            &Path::new(&format!("dist/posts/{}.html", name)),
+            &Path::new(&format!("{}/posts/{}.html", dist_path, name)),
             html_minifier.get_html(),
         )
         .expect("Cannot write to dist directory");
@@ -145,6 +163,6 @@ fn main() {
                 .expect("Aggregated posts page rendering failed"),
         )
         .expect("Minifying aggregated posts page failed");
-    fs::write(Path::new("dist/posts.html"), html_minifier.get_html())
+    fs::write(Path::new(&format!("{}/posts.html",  dist_path)), html_minifier.get_html())
         .expect("Cannot write to dist directory");
 }
