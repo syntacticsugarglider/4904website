@@ -151,7 +151,6 @@ fn main() {
         );
     }
     let posts = fs::read_dir("posts").expect("No posts directory found");
-    let mut i = 0;
     if Path::new("dist").exists() {
         fs::remove_dir_all("dist").expect("Cannot clean dist directory");
     }
@@ -159,6 +158,7 @@ fn main() {
     let mut compiled_posts: Vec<PostTemplate> = vec![];
     let mut featured: Option<PostTemplate> = None;
 
+    let mut article_names = Vec::new();
     for post in posts {
         let path = post.expect("Failed to parse a post's path").path();
         let markdown = &fs::read_to_string(&path).unwrap_or_else(|_| {
@@ -182,6 +182,10 @@ fn main() {
                         panic!(r#"Invalid metadata in post "{}""#, name);
                     }
                     name = String::from(lines[1]);
+                    if article_names.contains(&name) {
+                        panic!(r#"Two or more articles with the name "{}" found"#, name);
+                    }
+                    article_names.push(name.clone());
                     date = NaiveDateTime::parse_from_str(lines[2], "%Y-%m-%d %H:%M")
                         .unwrap_or_else(|_| panic!(r#"Invalid date specifier in post "{}""#, name));
                     tags = lines[3].split(',').map(String::from).collect();
@@ -236,7 +240,6 @@ fn main() {
             featured = Some(post.clone());
         }
         compiled_posts.push(post);
-        i += 1;
     }
     compiled_posts.sort_by(|a, b| a.date.cmp(&b.date));
     let posts = PostsTemplate {
